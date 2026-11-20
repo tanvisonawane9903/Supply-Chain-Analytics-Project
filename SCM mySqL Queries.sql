@@ -1,0 +1,84 @@
+CREATE DATABASE SUPPLYCHAIN;
+USE SUPPLYCHAIN;
+
+#1 TOTAL ORDERS 
+SELECT COUNT(distinct ORDER_ID) AS TOTAL_ORDERS
+FROM fact_order1;
+
+#2 TOTAL SALES
+SELECT SUM(REVENUE)AS TOTAL_SALES
+FROM fact_order1;
+
+#3 ON TIME ORDER
+SELECT COUNT(ORDER_ID)AS ON_TIME_ORDERS
+FROM fact_order1
+WHERE DELIVERY_STATUS = 'ON-TIME';
+
+#4 FILL RATE %
+SELECT 
+ROUND((SUM(SHIPPED_QUANTITY)/SUM(ORDER_QUANTITY))*100,2) AS FILL_RATE_PERCENTAGE
+FROM fact_order1;
+
+#5 STOCK IN HAND
+SELECT
+SUM(ORDER_QUANTITY - SHIPPED_QUANTITY) AS STOCK_IN_HAND
+FROM fact_order1;
+
+#6 TOTAL COUNTRY BY ORDER 
+SELECT 
+    Customer_Country,
+    COUNT(F.Order_ID) AS Total_Orders
+FROM FACT_ORDER1 F 
+JOIN CUSTOMER C 
+ON F.Customer_ID = C.Customer_ID
+GROUP BY C.Customer_Country
+ORDER BY Total_Orders DESC;
+
+
+#7 REGION BY ORDERS
+SELECT 
+    Customer_Region,
+    COUNT(F.Order_ID) AS Total_Orders
+FROM FACT_ORDER1 F
+JOIN CUSTOMER C
+ON F.Customer_ID = C.Customer_ID
+GROUP BY C.Customer_Region;
+
+#8 ORDERS BY SHIP MODE 
+SELECT 
+Ship_mode,
+COUNT(Order_id) AS Total_Orders
+FROM FACT_ORDER1
+GROUP BY Ship_mode
+ORDER BY Total_Orders DESC;
+
+#9 AVERAGE TIME BY SHIP MODE 
+SELECT 
+Ship_mode,
+ROUND(AVG(Transit_days),2) AS Avg_Transit_Days
+FROM FACT_ORDER1
+GROUP BY Ship_mode;
+
+#10 ORDERS BY REGION OR TRANSPORT MODE  
+SELECT 
+    C.Customer_Region,
+    F.Ship_mode,
+    COUNT(F.Order_id) AS Total_Orders
+FROM FACT_ORDER1 F
+JOIN CUSTOMER C
+ON F.Customer_ID = C.Customer_ID
+GROUP BY C.Customer_Region, F.Ship_mode
+ORDER BY C.Customer_Region;
+
+
+#11 TOP 5 CITIES BY ORDERS
+SELECT 
+    C.Customer_City,
+    COUNT(F.Order_id) AS Total_Orders
+FROM FACT_ORDER1 F
+JOIN CUSTOMER C
+ON F.Customer_ID = C.Customer_ID
+GROUP BY C.Customer_City
+ORDER BY Total_Orders DESC
+LIMIT 5;
+
